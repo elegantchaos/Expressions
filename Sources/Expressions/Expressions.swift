@@ -19,15 +19,14 @@ public protocol Constructable {
     init()
 }
 
-public extension NSRegularExpression {
-    
+public extension NSTextCheckingResult {
     /**
      Unpack a reg-exp match into a result structure using a mappings dictionary.
-    */
+     */
     
-    fileprivate func unpack<T>(_ match: NSTextCheckingResult, mappings: [PartialKeyPath<T> : Int], string: String, into: inout T) {
+    fileprivate func unpack<T>(mappings: [PartialKeyPath<T> : Int], string: String, into: inout T) {
         for mapping in mappings {
-            if let range = Range(match.range(at: mapping.value), in: string) {
+            if let range = Range(self.range(at: mapping.value), in: string) {
                 if let path = mapping.key as? WritableKeyPath<T,String> {
                     let captured = String(string[range])
                     into[keyPath: path] = captured
@@ -43,11 +42,11 @@ public extension NSRegularExpression {
      Unpack a reg-exp match into a result structure using reflection.
      */
     
-    fileprivate func unpack<T>(_ match: NSTextCheckingResult, string: String, into: inout T) where T: NSObject {
+    fileprivate func unpack<T>(string: String, into: inout T) where T: NSObject {
         let mirror = Mirror(reflecting: into)
         for child in mirror.children {
             if let name = child.label {
-                let range = match.range(withName: name)
+                let range = self.range(withName: name)
                 let value = (string as NSString).substring(with: range)
                 switch child.value {
                 case is String:
@@ -60,6 +59,10 @@ public extension NSRegularExpression {
             }
         }
     }
+}
+
+public extension NSRegularExpression {
+    
     
 
     /**
@@ -77,7 +80,7 @@ public extension NSRegularExpression {
         let range = NSRange(location: 0, length: string.count)
         if let match = firstMatch(in: string, options: [], range: range) {
             var result = T()
-            unpack(match, mappings: mappings, string: string, into: &result)
+            match.unpack(mappings: mappings, string: string, into: &result)
             return result
         }
         return nil
@@ -98,7 +101,7 @@ public extension NSRegularExpression {
     func firstMatch<T>(in string: String, capturing mappings: [PartialKeyPath<T>:Int], into capture: inout T) -> Bool {
         let range = NSRange(location: 0, length: string.count)
         if let match = firstMatch(in: string, options: [], range: range) {
-            unpack(match, mappings: mappings, string: string, into: &capture)
+            match.unpack(mappings: mappings, string: string, into: &capture)
             return true
         }
         
@@ -125,8 +128,8 @@ public extension NSRegularExpression {
     @available(macOS 10.13, iOS 10.0, *) func firstMatch<T>(in string: String) -> T? where T: NSObject {
         let over = NSRange(location: 0, length: string.count)
         if let match = firstMatch(in: string, options: [], range: over) {
-            let result = T()
-            unpack(match, string: string, into: &result)
+            var result = T()
+            match.unpack(string: string, into: &result)
             return result
         }
         
@@ -155,7 +158,7 @@ public extension NSRegularExpression {
     @available(macOS 10.13, iOS 10.0, *) func firstMatch<T>(in string: String, capturing: inout T) -> Bool where T: NSObject {
         let over = NSRange(location: 0, length: string.count)
         if let match = firstMatch(in: string, options: [], range: over) {
-            unpack(match, string: string, into: &capturing)
+            match.unpack(string: string, into: &capturing)
             return true
         }
         
