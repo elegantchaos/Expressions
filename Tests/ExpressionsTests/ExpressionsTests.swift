@@ -8,6 +8,16 @@ import XCTest
 
 class ExpressionTests: XCTestCase {
     
+    let positionalCapturePattern = try! NSRegularExpression(pattern: #"(\w+) (.*) (\w+)"#, options: [])
+    
+    let namedCapturePattern = try! NSRegularExpression(pattern: #"""
+(?xi)
+(?<first>   \w+ ) ?(?-x: )
+(?<number>  .*  ) ?(?-x: )
+(?<last>    \w+ )
+"""#, options: [])
+
+    
     func testReturnedResults() {
         struct Result: Constructable {
             var first = ""
@@ -15,9 +25,7 @@ class ExpressionTests: XCTestCase {
             var number = 0
         }
         
-        let pattern = try! NSRegularExpression(pattern: "(\\w+) (.*) (\\w+)", options: [])
-        
-        if let match: Result = pattern.firstMatch(in: "Sam 123 Deane", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2]) {
+        if let match: Result = positionalCapturePattern.firstMatch(in: "Sam 123 Deane", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2]) {
             XCTAssertEqual(match.first, "Sam")
             XCTAssertEqual(match.last, "Deane")
             XCTAssertEqual(match.number, 123)
@@ -25,15 +33,14 @@ class ExpressionTests: XCTestCase {
     }
     
     func testPassedInResults() {
-        class Result {
+        struct Result {
             var first = ""
             var last = ""
             var number = 0
         }
         
-        let pattern = try! NSRegularExpression(pattern: "(\\w+) (.*) (\\w+)", options: [])
         var result = Result()
-        if pattern.firstMatch(in: "Sam 123 Deane", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2], into: &result) {
+        if positionalCapturePattern.firstMatch(in: "Sam 123 Deane", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2], into: &result) {
             XCTAssertEqual(result.first, "Sam")
             XCTAssertEqual(result.last, "Deane")
             XCTAssertEqual(result.number, 123)
@@ -41,32 +48,24 @@ class ExpressionTests: XCTestCase {
     }
     
     func testPassedInResultsNoMatch() {
-        class Result {
+        struct Result {
             var first = ""
             var last = ""
             var number = 0
         }
         
-        let pattern = try! NSRegularExpression(pattern: "(\\w+) (.*) (\\w+)", options: [])
         var result = Result()
-        XCTAssertFalse(pattern.firstMatch(in: "Wrong", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2], into: &result))
+        XCTAssertFalse(positionalCapturePattern.firstMatch(in: "Wrong", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2], into: &result))
     }
     
-    @available(macOS 10.13, iOS 10.0, *) func testReflection() {
-        @objc class Result: NSObject {
+    @available(macOS 10.13, iOS 10.0, *) func testNamedCapture() {
+        class Result: NSObject {
             @objc var first = ""
             @objc var last = ""
             @objc var number = 0
         }
         
-        let pattern = try! NSRegularExpression(pattern: #"""
-(?xi)
-(?<first>   \w+ ) ?(?-x: )
-(?<number>  .*  ) ?(?-x: )
-(?<last>    \w+ )
-"""#, options: [])
-
-        if let result: Result = pattern.firstMatch(in: "Sam 123 Deane") {
+        if let result: Result = namedCapturePattern.firstMatch(in: "Sam 123 Deane") {
             XCTAssertEqual(result.first, "Sam")
             XCTAssertEqual(result.last, "Deane")
             XCTAssertEqual(result.number, 123)
@@ -74,22 +73,15 @@ class ExpressionTests: XCTestCase {
 
     }
 
-    @available(macOS 10.13, iOS 10.0, *) func testReflectionPassedIn() {
-        @objc class Result: NSObject {
+    @available(macOS 10.13, iOS 10.0, *) func testNamedCapturePassedIn() {
+        class Result: NSObject {
             @objc var first = ""
             @objc var last = ""
             @objc var number = 0
         }
         
-        let pattern = try! NSRegularExpression(pattern: #"""
-(?xi)
-(?<first>   \w+ ) ?(?-x: )
-(?<number>  .*  ) ?(?-x: )
-(?<last>    \w+ )
-"""#, options: [])
-        
         var result = Result()
-        if pattern.firstMatch(in: "Sam 123 Deane", capturing: &result) {
+        if namedCapturePattern.firstMatch(in: "Sam 123 Deane", capturing: &result) {
             XCTAssertEqual(result.first, "Sam")
             XCTAssertEqual(result.last, "Deane")
             XCTAssertEqual(result.number, 123)
