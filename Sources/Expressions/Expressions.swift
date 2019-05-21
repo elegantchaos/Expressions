@@ -22,7 +22,7 @@ public protocol Constructable {
 public extension NSRegularExpression {
     
     /**
-     Unpack a reg-exp match into a result structure.
+     Unpack a reg-exp match into a result structure using a mappings dictionary.
     */
     
     fileprivate func unpack<T>(_ match: NSTextCheckingResult, mappings: [PartialKeyPath<T> : Int], string: String, into: inout T) {
@@ -39,6 +39,29 @@ public extension NSRegularExpression {
         }
     }
     
+    /**
+     Unpack a reg-exp match into a result structure using reflection.
+     */
+    
+    fileprivate func unpack<T>(_ match: NSTextCheckingResult, string: String, into: inout T) where T: NSObject {
+        let mirror = Mirror(reflecting: into)
+        for child in mirror.children {
+            if let name = child.label {
+                let range = match.range(withName: name)
+                let value = (string as NSString).substring(with: range)
+                switch child.value {
+                case is String:
+                    into.setValue(value, forKey: name)
+                case is Int:
+                    into.setValue((value as NSString).integerValue, forKey: name)
+                default:
+                    break
+                }
+            }
+        }
+    }
+    
+
     /**
      Finds the first match of the expression in the given string.
      Uses the mappings to fill in a result instance, which is returned.
@@ -103,21 +126,7 @@ public extension NSRegularExpression {
         let over = NSRange(location: 0, length: string.count)
         if let match = firstMatch(in: string, options: [], range: over) {
             let result = T()
-            let mirror = Mirror(reflecting: result)
-            for child in mirror.children {
-                if let name = child.label {
-                    let range = match.range(withName: name)
-                    let value = (string as NSString).substring(with: range)
-                    switch child.value {
-                    case is String:
-                        result.setValue(value, forKey: name)
-                    case is Int:
-                        result.setValue((value as NSString).integerValue, forKey: name)
-                    default:
-                        break
-                    }
-                }
-            }
+            unpack(match, string: string, into: &result)
             return result
         }
         
@@ -146,21 +155,7 @@ public extension NSRegularExpression {
     @available(macOS 10.13, iOS 10.0, *) func firstMatch<T>(in string: String, capturing: inout T) -> Bool where T: NSObject {
         let over = NSRange(location: 0, length: string.count)
         if let match = firstMatch(in: string, options: [], range: over) {
-            let mirror = Mirror(reflecting: capturing)
-            for child in mirror.children {
-                if let name = child.label {
-                    let range = match.range(withName: name)
-                    let value = (string as NSString).substring(with: range)
-                    switch child.value {
-                    case is String:
-                        capturing.setValue(value, forKey: name)
-                    case is Int:
-                        capturing.setValue((value as NSString).integerValue, forKey: name)
-                    default:
-                        break
-                    }
-                }
-            }
+            unpack(match, string: string, into: &capturing)
             return true
         }
         
