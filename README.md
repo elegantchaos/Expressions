@@ -28,7 +28,7 @@ Note that `Result` here can be a class or a structure.
 
 ## Named Captures
 
-We can also use named captures.
+For an even cleaner mapping, we can also use named captures.
 
 Given an expression
 
@@ -64,3 +64,10 @@ has to be an Objective-C class, as do any named properties to be captured.
 This is a limitation of Swift reflection, which currently only supports reading values.
 
 
+## Work In Progress
+
+This is a bit of a sketch at the moment.
+
+It needs fleshing out with variations that return lists of matches.
+
+With some improvements to Swift reflection, the code could be simplified somewhat, and the ugly requirement for Obj-C inheritance removed.
