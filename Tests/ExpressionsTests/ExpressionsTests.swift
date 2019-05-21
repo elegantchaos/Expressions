@@ -9,7 +9,7 @@ import XCTest
 class ExpressionTests: XCTestCase {
     
     func testReturnedResults() {
-        struct Result: ExpressionResult {
+        struct Result: Constructable {
             var first = ""
             var last = ""
             var number = 0
