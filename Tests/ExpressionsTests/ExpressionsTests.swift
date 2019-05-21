@@ -9,7 +9,7 @@ import XCTest
 class ExpressionTests: XCTestCase {
     
     func testReturnedResults() {
-        struct Result: RegularExpressionResult {
+        struct Result: ExpressionResult {
             var first = ""
             var last = ""
             var number = 0
@@ -17,7 +17,7 @@ class ExpressionTests: XCTestCase {
         
         let pattern = try! NSRegularExpression(pattern: "(\\w+) (.*) (\\w+)", options: [])
         
-        if let match: Result = pattern.firstMatch(of: "Sam 123 Deane", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2]) {
+        if let match: Result = pattern.firstMatch(in: "Sam 123 Deane", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2]) {
             XCTAssertEqual(match.first, "Sam")
             XCTAssertEqual(match.last, "Deane")
             XCTAssertEqual(match.number, 123)
@@ -33,7 +33,7 @@ class ExpressionTests: XCTestCase {
         
         let pattern = try! NSRegularExpression(pattern: "(\\w+) (.*) (\\w+)", options: [])
         var result = Result()
-        if pattern.firstMatch(of: "Sam 123 Deane", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2], into: &result) {
+        if pattern.firstMatch(in: "Sam 123 Deane", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2], into: &result) {
             XCTAssertEqual(result.first, "Sam")
             XCTAssertEqual(result.last, "Deane")
             XCTAssertEqual(result.number, 123)
@@ -49,7 +49,7 @@ class ExpressionTests: XCTestCase {
         
         let pattern = try! NSRegularExpression(pattern: "(\\w+) (.*) (\\w+)", options: [])
         var result = Result()
-        XCTAssertFalse(pattern.firstMatch(of: "Wrong", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2], into: &result))
+        XCTAssertFalse(pattern.firstMatch(in: "Wrong", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2], into: &result))
     }
     
     @available(macOS 10.13, iOS 10.0, *) func testReflection() {
