@@ -1,0 +1,14 @@
+include:
+osx_image: xcode10.2
+language: swift
+install:
+- sudo gem install xcpretty-travis-formatter
+
+script:
+- swift test
+
+notifications:
+  email: false
+  slack:
+    rooms:
+      secure: d1idbHYYMnE1o+Mu0PJWuYo6lFTJNEMe0yLb3dpYWb18ZWVvwgrKWxFYI7WHQSWEJBNsIyTu4wfArBoFqccphEPS7qTQ6rFaFzS6ktC+XNx7DouBHJQmlXBaWQlQiC3CQnMFIBq9/yjlcAUgE80ltt48jdk2tVw33EJGIe1PPo+7GqF1vTeQmkYuqXdpvwba5YL9kCsFr6MHHeB/TEy/J57kei22L5flDYP2DanhsAl0XsXPIwSZkrzcSvG18gckdkR+PVw1xBnDtFknmSvvhlMRRytqZNBnZ4gExr7Mp/lzFj6WiayLyx95FmUp0yLPf2Dr8CDlD8kJPIG/SQnD46+rMRxMRnOMEg02MOxN8v2zc6HAjLTAJr0WRKtRqW+QCik1Z+Bp/g2Cap7O3qaAZx2JQ6hHdLAOh7PvobeN/j7DN/cDCmbhlCJdwx/n/Mn34NYq4H8X8lGtWtXxSk5YPpQEj0WfY14JYiRDhU2a85KuOcNq4dxx/1INHS+PCfbAEt0w60I2MKayg/CfHyWsOgNXyB7K4wbaa/C4KAYr0Nyx9d9kP+/YoOMNykZCasEm8LY9Woqc5tX7wvu6BBZXImiHcKHY7v0RCLN3K5bpboYzGt7znBCHqk+9a2MF822H4JpvUx9l6MglVWS+cYhmMXhBkdGXZyFwHw+A3Rqms+8=
