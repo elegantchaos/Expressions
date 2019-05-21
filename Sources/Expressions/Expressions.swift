@@ -60,6 +60,7 @@ public extension NSRegularExpression {
      
      @param in The string to search.
      @param mappings A dictionary mapping key paths in the result type to capture groups in the expression.
+     @param info The structure to return the capture results in.
      */
 
     func firstMatch<T>(in string: String, capturing mappings: [PartialKeyPath<T>:Int], into capture: inout T) -> Bool {
@@ -121,4 +122,48 @@ public extension NSRegularExpression {
         
         return nil
     }
+
+    
+    /**
+     Finds the first match of the expression in the given string.
+     Uses Swift reflection to fill in the passed-in result instance, by looking for named capture groups
+     that match the names of properties in the instance.
+     
+     Because this variation fills in a passed-in result structure, it doesn't need to construct it. This
+     avoids the structure having to conform to `Constructable`.
+
+     Because it relies on named capture groups, the regular expression needs to use them.
+     
+     Because Swift reflection currently only supports read-only access, we have to use Objective-C
+     key-value support to write into the result instance. This means that any captured properties have
+     to be annotated with @objc, as does the structure itself.
+     
+     @param in The string to search.
+     @param result The
+     */
+    
+    @available(macOS 10.13, iOS 10.0, *) func firstMatch<T>(in string: String, capturing: inout T) -> Bool where T: NSObject {
+        let over = NSRange(location: 0, length: string.count)
+        if let match = firstMatch(in: string, options: [], range: over) {
+            let mirror = Mirror(reflecting: capturing)
+            for child in mirror.children {
+                if let name = child.label {
+                    let range = match.range(withName: name)
+                    let value = (string as NSString).substring(with: range)
+                    switch child.value {
+                    case is String:
+                        capturing.setValue(value, forKey: name)
+                    case is Int:
+                        capturing.setValue((value as NSString).integerValue, forKey: name)
+                    default:
+                        break
+                    }
+                }
+            }
+            return true
+        }
+        
+        return false
+    }
+
 }
