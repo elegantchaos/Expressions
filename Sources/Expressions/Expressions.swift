@@ -48,4 +48,28 @@ public extension NSRegularExpression {
         return false
     }
     
+    @available(macOS 10.13, iOS 10.0, *) func firstMatch<T>(in string: String) -> T? where T: NSObject {
+        let over = NSRange(location: 0, length: string.count)
+        if let match = firstMatch(in: string, options: [], range: over) {
+            let result = T()
+            let mirror = Mirror(reflecting: result)
+            for child in mirror.children {
+                if let name = child.label {
+                    let range = match.range(withName: name)
+                    let value = (string as NSString).substring(with: range)
+                    switch child.value {
+                    case is String:
+                        result.setValue(value, forKey: name)
+                    case is Int:
+                        result.setValue((value as NSString).integerValue, forKey: name)
+                    default:
+                        break
+                    }
+                }
+            }
+            return result
+        }
+        
+        return nil
+    }
 }

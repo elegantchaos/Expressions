@@ -51,4 +51,26 @@ class ExpressionTests: XCTestCase {
         var result = Result()
         XCTAssertFalse(pattern.firstMatch(of: "Wrong", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2], into: &result))
     }
+    
+    @available(macOS 10.13, iOS 10.0, *) func testReflection() {
+        @objc class Result: NSObject {
+            @objc var first = ""
+            @objc var last = ""
+            @objc var number = 0
+        }
+        
+        let pattern = try! NSRegularExpression(pattern: #"""
+(?xi)
+(?<first>   \w+ ) ?(?-x: )
+(?<number>  .*  ) ?(?-x: )
+(?<last>    \w+ )
+"""#, options: [])
+
+        if let result: Result = pattern.firstMatch(in: "Sam 123 Deane") {
+            XCTAssertEqual(result.first, "Sam")
+            XCTAssertEqual(result.last, "Deane")
+            XCTAssertEqual(result.number, 123)
+        }
+
+    }
 }
