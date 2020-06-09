@@ -5,6 +5,8 @@
 
 import Foundation
 
+#if canImport(ObjectiveC)
+
 /**
  A protocol that result types need to conform to in order for them to
  be useable with methods that create and return instances of them.
@@ -166,3 +168,4 @@ public extension NSRegularExpression {
     }
 
 }
+#endif
