@@ -29,8 +29,8 @@ public struct Match {
         self.captures = captures
     }
     
-    var value: Substring { captures[0].value }
-    var range: Range<String.Index> { captures[0].range }
+    var value: Substring { return captures[0].value }
+    var range: Range<String.Index> { return captures[0].range }
 }
 
 extension NSRegularExpression {
