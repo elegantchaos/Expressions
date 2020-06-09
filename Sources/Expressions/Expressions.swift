@@ -5,8 +5,6 @@
 
 import Foundation
 
-#if canImport(ObjectiveC)
-
 /**
  A protocol that result types need to conform to in order for them to
  be useable with methods that create and return instances of them.
@@ -35,28 +33,6 @@ public extension NSTextCheckingResult {
                 } else if let path = mapping.key as? WritableKeyPath<T,Int> {
                     let captured = (String(string[range]) as NSString).integerValue
                     into[keyPath: path] = captured
-                }
-            }
-        }
-    }
-    
-    /**
-     Unpack a reg-exp match into a result structure using reflection.
-     */
-    
-    fileprivate func unpack<T>(string: String, into: inout T) where T: NSObject {
-        let mirror = Mirror(reflecting: into)
-        for child in mirror.children {
-            if let name = child.label {
-                let range = self.range(withName: name)
-                let value = (string as NSString).substring(with: range)
-                switch child.value {
-                case is String:
-                    into.setValue(value, forKey: name)
-                case is Int:
-                    into.setValue((value as NSString).integerValue, forKey: name)
-                default:
-                    break
                 }
             }
         }
@@ -109,6 +85,35 @@ public extension NSRegularExpression {
         
         return false
     }
+}
+
+#if canImport(ObjectiveC)
+
+public extension NSTextCheckingResult {
+    /**
+     Unpack a reg-exp match into a result structure using reflection.
+     */
+    
+    fileprivate func unpack<T>(string: String, into: inout T) where T: NSObject {
+        let mirror = Mirror(reflecting: into)
+        for child in mirror.children {
+            if let name = child.label {
+                let range = self.range(withName: name)
+                let value = (string as NSString).substring(with: range)
+                switch child.value {
+                case is String:
+                    into.setValue(value, forKey: name)
+                case is Int:
+                    into.setValue((value as NSString).integerValue, forKey: name)
+                default:
+                    break
+                }
+            }
+        }
+    }
+}
+
+public extension NSRegularExpression {
     
     /**
      Finds the first match of the expression in the given string.
@@ -139,6 +144,7 @@ public extension NSRegularExpression {
     }
 
     
+    
     /**
      Finds the first match of the expression in the given string.
      Uses Swift reflection to fill in the passed-in result instance, by looking for named capture groups
@@ -166,6 +172,6 @@ public extension NSRegularExpression {
         
         return false
     }
-
 }
+
 #endif

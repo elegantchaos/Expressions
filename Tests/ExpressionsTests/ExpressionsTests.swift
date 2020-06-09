@@ -3,7 +3,6 @@
 //  All code (c) 2018 - present day, Elegant Chaos Limited.
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-#if canImport(ObjectiveC)
 import XCTest
 @testable import Expressions
 
@@ -59,7 +58,9 @@ class ExpressionTests: XCTestCase {
         XCTAssertFalse(positionalCapturePattern.firstMatch(in: "Wrong", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2], into: &result))
     }
     
-    @available(macOS 10.13, iOS 10.0, *) func testNamedCapture() {
+    #if canImport(ObjectiveC)
+
+    func testNamedCapture() {
         class Result: NSObject {
             @objc var first = ""
             @objc var last = ""
@@ -74,7 +75,7 @@ class ExpressionTests: XCTestCase {
 
     }
 
-    @available(macOS 10.13, iOS 10.0, *) func testNamedCapturePassedIn() {
+    func testNamedCapturePassedIn() {
         class Result: NSObject {
             @objc var first = ""
             @objc var last = ""
@@ -89,5 +90,5 @@ class ExpressionTests: XCTestCase {
         }
         
     }
+    #endif
 }
-#endif
