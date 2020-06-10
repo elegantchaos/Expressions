@@ -6,8 +6,8 @@
 import Foundation
 
 public struct Capture {
-    let value: Substring
-    let range: Range<String.Index>
+    public let value: Substring
+    public let range: Range<String.Index>
     
     init(from text: String, range: NSRange) {
         let start = text.index(text.startIndex, offsetBy: range.location)
@@ -29,11 +29,11 @@ public struct Match {
         self.captures = captures
     }
     
-    var value: Substring { return captures[0].value }
-    var range: Range<String.Index> { return captures[0].range }
+    public var value: Substring { return captures[0].value }
+    public var range: Range<String.Index> { return captures[0].range }
 }
 
-extension NSRegularExpression {
+public extension NSRegularExpression {
     func substitute(in text: String, process: (String, Match) -> String) -> String {
         var processed = text
         let range = NSRange(location: 0, length: processed.count)
@@ -46,7 +46,7 @@ extension NSRegularExpression {
     }
 }
 
-extension String {
+public extension String {
     func substituting(pattern: String, options: NSRegularExpression.Options = [], process: (String, Match) -> String) -> String {
         let expression = try! NSRegularExpression(pattern: pattern, options: options)
         return expression.substitute(in: self, process: process)
