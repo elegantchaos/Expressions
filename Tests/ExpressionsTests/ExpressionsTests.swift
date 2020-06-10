@@ -58,9 +58,9 @@ class ExpressionTests: XCTestCase {
         XCTAssertFalse(positionalCapturePattern.firstMatch(in: "Wrong", capturing: [\Result.first: 1, \Result.last: 3, \Result.number: 2], into: &result))
     }
     
-    #if canImport(ObjectiveC)
 
     func testNamedCapture() {
+        #if canImport(ObjectiveC)
         class Result: NSObject {
             @objc var first = ""
             @objc var last = ""
@@ -72,10 +72,11 @@ class ExpressionTests: XCTestCase {
             XCTAssertEqual(result.last, "Deane")
             XCTAssertEqual(result.number, 123)
         }
-
+        #endif
     }
 
     func testNamedCapturePassedIn() {
+        #if canImport(ObjectiveC)
         class Result: NSObject {
             @objc var first = ""
             @objc var last = ""
@@ -88,7 +89,6 @@ class ExpressionTests: XCTestCase {
             XCTAssertEqual(result.last, "Deane")
             XCTAssertEqual(result.number, 123)
         }
-        
+        #endif
     }
-    #endif
 }
